@@ -5,11 +5,11 @@
 mod config;
 mod file;
 mod log;
-mod service;
+mod logger;
 mod stream;
 mod test;
 mod utils;
 
 pub use config::LogConfig;
 pub use log::Log;
-pub use service::Logger;
+pub use logger::Logger;

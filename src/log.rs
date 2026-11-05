@@ -5,11 +5,17 @@ use chrono::{DateTime, Utc};
 
 use crate::utils::LogDateTime;
 
+/// The model for a log
+///
+/// It contains the date (UTC) and the inner details
+/// including a string message, trace and kind of the
+/// error. To enable trace make sure RUST_BACKTRACE=1
 pub struct Log {
     inner: Inner,
     created_at: DateTime<Utc>,
 }
 
+/// Name of the enum dictates its level
 pub enum Inner {
     Info(String),
     Error {

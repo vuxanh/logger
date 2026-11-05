@@ -1,5 +1,10 @@
-const MAX_FILE_SIZE: usize = 10000000;
-const MAX_BUFFER_SIZE: usize = 6;
+use std::env::{self, VarError};
+
+/// Configs for logger
+///
+/// It contains the path and filename of the log to be created.
+/// A max file size to know when it should rotate logs
+/// and a max buffer size for its mpsc channel.
 pub struct LogConfig {
     pub(crate) path: String,
     pub(crate) file_name: String,
@@ -10,11 +15,23 @@ pub struct LogConfig {
 impl LogConfig {
     pub fn new() -> Self {
         Self {
-            path: Default::default(),
-            file_name: Default::default(),
-            max_file_size: MAX_FILE_SIZE,
-            max_buffer_size: MAX_BUFFER_SIZE,
+            path: "./log".to_string(),
+            file_name: "app.log".to_string(),
+            max_file_size: 10 * (1 << 20),
+            max_buffer_size: 6,
         }
+    }
+
+    pub fn default() -> Result<Self, VarError> {
+        let path = env::var("LOG_PATH")?;
+        let file_name = env::var("FILE_NAME")?;
+
+        Ok(Self {
+            path,
+            file_name,
+            max_file_size: 10 * (1 << 20),
+            max_buffer_size: 6,
+        })
     }
 
     pub fn path(mut self, path: &str) -> Self {

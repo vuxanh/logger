@@ -2,6 +2,7 @@ use tokio::sync::mpsc::{Receiver, Sender, channel};
 
 use crate::log::Log;
 
+/// Helper to manage stream for Logger
 pub struct Stream {
     tx: Sender<Log>,
     rx: Receiver<Log>,
@@ -14,6 +15,9 @@ impl Stream {
         Self { tx, rx }
     }
 
+    /// Function to spawn a stream listener in the background
+    ///
+    /// This should run indefinitely.
     pub fn register(mut self, mut callback: Box<dyn FnMut(Vec<Log>) + Send + Sync>) {
         tokio::spawn(async move {
             loop {

@@ -1,6 +1,6 @@
 use std::{
     fs::{self, File, OpenOptions, rename},
-    io::{BufWriter, Write},
+    io::{BufWriter, Error, Write},
     path::PathBuf,
     sync::Mutex,
 };
@@ -13,6 +13,10 @@ pub struct FileConfig {
     pub max_file_size: usize,
 }
 
+/// Service for managing log write and rotate
+///
+/// Remembers the number of bytes that have been written
+/// so it can rotate if it exceeds max_file_size.
 pub struct FileService {
     file: Mutex<BufWriter<File>>,
     bytes_written: usize,
@@ -20,7 +24,7 @@ pub struct FileService {
 }
 
 impl FileService {
-    pub fn new(config: FileConfig) -> Result<Self, std::io::Error> {
+    pub fn new(config: FileConfig) -> Result<Self, Error> {
         let file = create_new_file(&config)?;
         Ok(Self {
             file: Mutex::new(BufWriter::new(file)),
@@ -29,12 +33,13 @@ impl FileService {
         })
     }
 
-    pub fn write_batch(&mut self, logs: &Vec<Log>) -> Result<(), std::io::Error> {
+    /// Function to write logs in batch to a file.
+    ///
+    /// Self is put inside scope to make sure lock is released and
+    /// it can be mutable for rotate later.
+    pub fn write_batch(&mut self, logs: &Vec<Log>) -> Result<(), Error> {
         {
-            let mut file = self
-                .file
-                .lock()
-                .map_err(|e| std::io::Error::other(e.to_string()))?;
+            let mut file = self.file.lock().map_err(|e| Error::other(e.to_string()))?;
 
             for log in logs {
                 writeln!(file, "{log}")?;
@@ -52,11 +57,17 @@ impl FileService {
         Ok(())
     }
 
-    pub fn rotate(&mut self) -> Result<(), std::io::Error> {
+    /// Function to rotate file when it has exceeded max size
+    ///
+    /// Flush write buffer to write the remaining messages to file
+    /// if any. The old file will be renamed with the current date
+    /// i.e. file_1970-01-01_00_00_00.log
+    /// Then it creates a new file to write in
+    pub fn rotate(&mut self) -> Result<(), Error> {
         {
             self.file
                 .lock()
-                .map_err(|e| std::io::Error::other(e.to_string()))?
+                .map_err(|e| Error::other(e.to_string()))?
                 .flush()?;
         }
 
@@ -83,7 +94,8 @@ impl FileService {
     }
 }
 
-fn create_new_file(config: &FileConfig) -> Result<File, std::io::Error> {
+/// Helper function to create a new file in the path provided
+fn create_new_file(config: &FileConfig) -> Result<File, Error> {
     let mut write_path = PathBuf::from(&config.path);
 
     fs::create_dir_all(&write_path)?;

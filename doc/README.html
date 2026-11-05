@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <title>Docs</title>
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+    <h1 class="title">Docs</h1>
+    <nav id="rustdoc"><ul>
+<li><a href="#example" title="Example">0.1 Example</a><ul></ul></li></ul></nav><p>Logger crate. Features:</p>
+<ul>
+<li>Log to file</li>
+<li>Thread-safe logging</li>
+<li>Log levels</li>
+<li>Log rotation</li>
+</ul>
+<h2 id="example"><a class="doc-anchor" href="#example">§</a>0.1 Example</h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">fn </span>main() {
+    <span class="kw">let </span>config = LogServiceConfig::new()
+        .path(<span class="string">"./logs"</span>)
+        .file_name(<span class="string">"app.log"</span>)
+        .max_buffer_size(<span class="number">4</span>)
+        .max_file_size(<span class="number">1000000</span>);
+    <span class="kw">let </span>service = LogService::new(<span class="kw-2">&amp;</span>config);
+    <span class="kw">let </span>tx = service.stream();
+
+    service.register();
+}</code></pre></div>
+    
+</body>
+</html>

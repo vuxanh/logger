@@ -2,6 +2,8 @@ use tokio::sync::mpsc::{Receiver, Sender, channel};
 
 use crate::log::Log;
 
+pub type LogSender = Sender<Log>;
+
 /// Helper to manage stream for Logger
 pub struct Stream {
     tx: Sender<Log>,

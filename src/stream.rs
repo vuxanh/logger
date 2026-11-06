@@ -38,7 +38,7 @@ impl Stream {
 }
 
 #[async_trait]
-pub trait StreamSending {
+pub trait StreamSending: Send + Sync {
     async fn send_error(
         &self,
         err: Box<dyn std::error::Error + Send + Sync + 'static>,

@@ -39,18 +39,18 @@ impl Stream {
 
 #[async_trait]
 pub trait StreamSending {
-    async fn send_error<E: std::error::Error + Send + Sync + 'static>(
+    async fn send_error(
         &self,
-        err: E,
+        err: Box<dyn std::error::Error + Send + Sync + 'static>,
     ) -> Result<(), SendError<Log>>;
     async fn send_info(&self, info: &str) -> Result<(), SendError<Log>>;
 }
 
 #[async_trait]
 impl StreamSending for Sender<Log> {
-    async fn send_error<E: std::error::Error + Send + Sync + 'static>(
+    async fn send_error(
         &self,
-        err: E,
+        err: Box<dyn std::error::Error + Send + Sync + 'static>,
     ) -> Result<(), SendError<Log>> {
         let log = Log::from_error(err);
         self.send(log).await

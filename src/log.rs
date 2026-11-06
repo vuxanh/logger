@@ -33,7 +33,7 @@ impl Log {
         }
     }
 
-    pub fn from_error<E: core::error::Error + Send + Sync + 'static>(e: E) -> Self {
+    pub fn from_error(e: Box<dyn core::error::Error + Send + Sync + 'static>) -> Self {
         Self {
             inner: Inner::Error {
                 kind: std::any::type_name_of_val(&e).to_string(),

@@ -28,7 +28,7 @@ mod test {
         service.register();
 
         for _ in 0..5 {
-            tx.send(Log::from_error(std::io::Error::other("error")))
+            tx.send(Log::from_error(Box::new(std::io::Error::other("error"))))
                 .await
                 .unwrap();
         }
@@ -105,7 +105,7 @@ mod test {
         service.register();
 
         for _ in 0..10 {
-            tx.send(Log::from_error(std::io::Error::other("error")))
+            tx.send(Log::from_error(Box::new(std::io::Error::other("error"))))
                 .await
                 .unwrap();
         }

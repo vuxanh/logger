@@ -1,4 +1,4 @@
-use tokio::sync::mpsc::{Receiver, Sender, channel};
+use tokio::sync::mpsc::{Receiver, Sender, channel, error::SendError};
 
 use crate::log::Log;
 
@@ -33,5 +33,31 @@ impl Stream {
 
     pub fn tx(&self) -> Sender<Log> {
         self.tx.clone()
+    }
+}
+
+pub trait StreamSending {
+    fn send_error<E: std::error::Error + Send + Sync + 'static>(
+        &self,
+        err: E,
+    ) -> impl std::future::Future<Output = Result<(), SendError<Log>>> + Send;
+    fn send_info(
+        &self,
+        info: &str,
+    ) -> impl std::future::Future<Output = Result<(), SendError<Log>>> + Send;
+}
+
+impl StreamSending for Sender<Log> {
+    async fn send_error<E: std::error::Error + Send + Sync + 'static>(
+        &self,
+        err: E,
+    ) -> Result<(), SendError<Log>> {
+        let log = Log::from_error(err);
+        self.send(log).await
+    }
+
+    async fn send_info(&self, info: &str) -> Result<(), SendError<Log>> {
+        let log = Log::from_str(info);
+        self.send(log).await
     }
 }

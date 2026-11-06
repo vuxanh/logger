@@ -13,4 +13,4 @@ mod utils;
 pub use config::LogConfig;
 pub use log::Log;
 pub use logger::Logger;
-pub use stream::LogSender;
+pub use stream::{LogSender, StreamSending};
